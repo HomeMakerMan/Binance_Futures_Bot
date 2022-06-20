@@ -6,11 +6,22 @@ from telegram.ext import Updater, CommandHandler, CallbackContext
 from telegram import Update
 from threading import Thread
 import os
+import configparser
 
 
 #v1 : 가격 확인후 거래만
 #v2 : 텔레그램 봇을 통해 현재 상황 및 메세지 확인, 평균 진입금액에서 -3%일때 추가구매
 #v3 : 평균 최근 구매액에서 -3%일때 추가구매
+
+def config_read():
+    config = configparser.ConfigParser()    
+    config.read('config.ini', encoding='utf-8') 
+
+    api_key = config['Binance']['api_key']
+    api_secret  = config['Binance']['api_secret']
+    token = config['Telegram']['token']
+    chat_id = config['Telegram']['chat_id']
+    return api_key, api_secret, token, chat_id
 
 def check_balance(account):
     for bl in account['assets']:
@@ -91,7 +102,7 @@ def main_transaction():
                 active_position = check_position(account)
                 msg1 = "[+]포지션 오픈 성공 : "+str(order['orderId'])+"\n포지션 총 구매금액($) : " + str(active_position[0]['isolatedWallet']) +'\n포지션 평균 진입 금액 : '+ str(active_position[0]['entryPrice'])
                 print(msg1)
-                #bot.send_message(chat_id = 'Chat ID', text=msg1, disable_notification=False)  
+                #bot.send_message(chat_id = chat_id, text=msg1, disable_notification=False)  
                 
                 # Step4. 포지션 종료가 설정
                 target_sell_price = int(float(active_position[0]['entryPrice']) * sell_rate)
@@ -133,7 +144,7 @@ def main_transaction():
                         active_position = check_position(account)
                         msg2 = "[+]추가 구매 성공 : "+str(order['orderId'])+"\n포지션 총 구매금액($) : " + str(active_position[0]['isolatedWallet']) +'\n포지션 평균 진입 금액 : '+ str(active_position[0]['entryPrice'])
                         print(msg2)
-                        #bot.send_message(chat_id = 'Chat ID', text=msg2, disable_notification=False)
+                        #bot.send_message(chat_id = chat_id, text=msg2, disable_notification=False)
 
                         #Step7. 포지션 종료가 및 추가 구매가 재설정
                         target_sell_price = int(float(active_position[0]['entryPrice']) * sell_rate)
@@ -156,7 +167,7 @@ def main_transaction():
                     time.sleep(5)
                     msg3 = "[+]포지션 종료 성공 : "+str(order['orderId'])+"\n포지션 총 판매금액($) : " + str(active_position[0]['isolatedWallet']) +'\n포지션 예상 수익 : '+ str(round((float(current_price['price']) - float(active_position[0]['entryPrice'])) * float(active_position[0]['positionAmt']),2))
                     print(msg3)
-                    #bot.send_message(chat_id = 'Chat ID', text=msg3, disable_notification=False)
+                    #bot.send_message(chat_id = chat_id, text=msg3, disable_notification=False)
                     break
                 else:
                     pass
@@ -192,14 +203,14 @@ def check_status(update: Update, _: CallbackContext) -> None:
                                         '\nPNL : '+str(round(pnl,2))+ '$' + \
                                             '\nROE : '+str(roe)+ '%'
 
-    bot.send_message(chat_id = 'Chat ID', text=msg, disable_notification=False)    
+    bot.send_message(chat_id = chat_id, text=msg, disable_notification=False)    
 
 def quit(update: Update, _: CallbackContext) -> None:
-    bot.send_message(chat_id = 'Chat ID', text="봇을 종료합니다", disable_notification=False)    
+    bot.send_message(chat_id = chat_id, text="봇을 종료합니다", disable_notification=False)    
     os._exit(1)
 
 def commander() -> None:
-    updater = Updater('Your telegram token')
+    updater = Updater(token)
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler("status", check_status))
     dispatcher.add_handler(CommandHandler("quit", quit))
@@ -215,13 +226,14 @@ def main():
     p2.start()
 
 if __name__ == '__main__':
+    api_key, api_secret, token, chat_id = config_read()
     #telegram
-    bot = telegram.Bot(token='Your telegram token')
+    bot = telegram.Bot(token=token)
     #binance
-    api_key = 'Your Binance API Key'
-    api_secret = 'Your Binance Secret Key'
+    api_key = api_key
+    api_secret = api_secret
     client = Client(api_key = api_key, api_secret=api_secret, testnet = False)
-    #평균 진입가 기준
+    #평균 구매가 기준
     sell_rate = 1.02
     buy_rate = 0.97
     symbol = 'BTCUSDT'
