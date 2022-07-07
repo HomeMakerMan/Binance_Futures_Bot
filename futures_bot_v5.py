@@ -279,8 +279,9 @@ def main_transaction():
                     pass
 
                 time.sleep(5)
-        except Exception as e:
-            print(e.message)
+        except:
+            print('[-]Error Restart')
+            time.sleep(60)
             #os._exit(1)
             continue
 
