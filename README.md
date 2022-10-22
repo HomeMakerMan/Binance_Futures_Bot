@@ -30,16 +30,21 @@
 
 ## Binance_Futures_Bot 실행방법
 1. config_v6.ini에 들어가서 물타기 비율과 바이낸스 api 정보 입력
-2. 실행 쉘 파일에 실행권한을 부여
+2. 필요한 라이브러리 다운로드
+'''sh
+pip install -r requirements.txt
+'''
+3. config_v6.ini에 들어가서 물타기 비율과 바이낸스 api 정보 입력
+4. 실행 쉘 파일에 실행권한을 부여
 ```sh
 chmod 764 startup.sh
 chmod 764 shutdown.sh
 ```
-3. 봇 실행
+5. 봇 실행
 ```sh
 ./startup.sh
 ```
-4. 봇이 잘 돌고있는지 확인방법
+6. 봇이 잘 돌고있는지 확인방법
 ```sh
 ps -ef | grep python3
 또는, (v2) Telegram에서 본인이 만든 봇에서 /status를 치면 현재 포지션등이 나옴
