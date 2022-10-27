@@ -75,7 +75,7 @@ def main_transaction():
         
             # Step1. 현재 잔액 및 수익률 확인
             total_balance, avail_balance, initialmargin, pnl, roe = check_balance(account)
-            print('[i]총 자산(거래전) : '+ str(total_balance)+'$, 가용 자산 : '+str(avail_balance)+'$, 마진 금액(수익포함) : '+str(round(initialmargin, 3))+'$, PNL : '+str(pnl)+'$, ROE : '+str(roe)+'%')
+            print('[i]Total Asset(before start) : '+ str(total_balance)+'$, Available Asset : '+str(avail_balance)+'$, Margin Asset(Included Profit) : '+str(round(initialmargin, 3))+'$, PNL : '+str(pnl)+'$, ROE : '+str(roe)+'%')
 
             # Step2. 현재 포지션 확인
             position_XRP, position_BTC = check_position(account)
@@ -83,36 +83,36 @@ def main_transaction():
             #포지션이 있는경우(리플 : 가격이 떨어지면 더사고, 오르면 팔고)
             if position_XRP['isolatedWallet'] != '0':
                 print("####### XRP(Long) #######")
-                print("[i]기존 포지션이 있습니다! 포지션 총 구매금액($) : " + str(position_XRP['isolatedWallet']) +', 포지션 평균 진입 금액 : '+ str(position_XRP['entryPrice']))
+                print("[i]Exists Position! Position total amount($) : " + str(position_XRP['isolatedWallet']) +', entryprice of position : '+ str(position_XRP['entryPrice']))
                 # Step4. 포지션 종료가 설정
                 XRP_target_sell_price = float(position_XRP['entryPrice']) * XRP_sell_rate
-                print("[i]포지션 종료가 설정("+str(XRP_sell_rate)+") : "+str(XRP_target_sell_price))
+                print("[i]Set close price of position("+str(XRP_sell_rate)+") : "+str(XRP_target_sell_price))
                 # step5. 추가 구매가 설정
                 XRP_tartget_buy_price = float(position_XRP['entryPrice']) * XRP_buy_rate
-                print("[i]추가 구매가 설정("+str(XRP_buy_rate)+") : "+str(XRP_tartget_buy_price))
+                print("[i]Set add price("+str(XRP_buy_rate)+") : "+str(XRP_tartget_buy_price))
                 # step6. 추가 구매액 설정(현재 포지션 총 구매액 * 1.1(수수료, 소숫점 제외 등 10%정도) + 최초 구매금액)
                 XRP_next_amount = (float(position_XRP['isolatedWallet']) * 1.05 + initamount)
-                print("[i]추가 구매액 재설정($, 현재 포지션 총 구매금액 + 초기금액(약 2배씩 구매)) : "+str(XRP_next_amount))
+                print("[i]Reset add amount of position($, amount of current position + inital price(about x 2)) : "+str(XRP_next_amount))
             
             #포지션이 있는경우(비트코인 : 가격이 떨어지면 팔고, 오르면 더사고)
             if position_BTC['isolatedWallet'] != '0':
                 print("####### BTC(Short) #######")
-                print("[i]기존 포지션이 있습니다! 포지션 총 구매금액($) : " + str(position_BTC['isolatedWallet']) +', 포지션 평균 진입 금액 : '+ str(position_BTC['entryPrice']))
+                print("[i]Exists Position! Position total amount($) : " + str(position_BTC['isolatedWallet']) +', entryprice of position : '+ str(position_BTC['entryPrice']))
                 # Step4. 포지션 종료가 설정
                 BTC_tartget_buy_price = int(float(position_BTC['entryPrice']) * BTC_buy_rate)
-                print("[i]포지션 종료가 설정("+str(BTC_buy_rate)+") : "+str(BTC_tartget_buy_price))
+                print("[i]Set close price of position("+str(BTC_buy_rate)+") : "+str(BTC_tartget_buy_price))
                 # step5. 추가 판매가 설정
                 BTC_target_sell_price = int(float(position_BTC['entryPrice']) * BTC_sell_rate)
-                print("[i]추가 판매가 설정("+str(BTC_sell_rate)+") : "+str(BTC_target_sell_price))
+                print("[i]Set add price("+str(BTC_sell_rate)+") : "+str(BTC_target_sell_price))
                 # step6. 추가 판매액 설정(현재 포지션 총 구매액 * 1.1(수수료, 소숫점 제외 등 10%정도) * 최초 구매금액)
                 BTC_next_amount = int((float(position_BTC['isolatedWallet']) * 1.05 + initamount))
-                print("[i]추가 판매액 재설정($, 현재 포지션 총 판매금액 + 초기금액(약 2배씩 구매)) : "+str(BTC_next_amount))
+                print("[i]Reset add amount of position($, amount of current position + inital price(about x 2)) : "+str(BTC_next_amount))
 
 
             #포지션이 없는 경우(리플)
             if position_XRP['isolatedWallet'] == '0':
                 print("####### XRP(Long) #######")
-                print("현재 포지션이 없습니다. 포지션 오픈 하겠습니다. ")
+                print("No position, open new position.")
                 # Step3. 최초 구매(포지션 오픈)
                 symbol = "XRPUSDT"
                 current_price = client.futures_symbol_ticker(symbol=symbol)
@@ -122,26 +122,26 @@ def main_transaction():
                 account = client.futures_account()
                 position_XRP, position_BTC = check_position(account)
 
-                msg1 = "[+]포지션 오픈 성공 : "+str(order['orderId'])+"\n포지션 총 구매금액($) : " + str(position_XRP['isolatedWallet']) +'\n포지션 평균 진입 금액 : '+ str(position_XRP['entryPrice'])
+                msg1 = "[+]Success new position open : "+str(order['orderId'])+"\nPosition total amount($) : " + str(position_XRP['isolatedWallet']) +'\nentryprice of position : '+ str(position_XRP['entryPrice'])
                 print(msg1)
                 
                 # Step4. 포지션 종료가 설정
                 XRP_target_sell_price = float(position_XRP['entryPrice']) * XRP_sell_rate
-                print("[i]포지션 종료가 설정("+str(XRP_sell_rate)+") : "+str(XRP_target_sell_price))
+                print("[i]Set close price of position("+str(XRP_sell_rate)+") : "+str(XRP_target_sell_price))
                 # step5. 추가 구매가 설정
                 XRP_tartget_buy_price = float(position_XRP['entryPrice']) * XRP_buy_rate
-                print("[i]추가 구매가 설정("+str(XRP_buy_rate)+") : "+str(XRP_tartget_buy_price))
+                print("[i]Set add price("+str(XRP_buy_rate)+") : "+str(XRP_tartget_buy_price))
                 # step6. 추가 구매액 설정(현재 포지션 총 구매액 * 1.1(수수료, 소숫점 제외 등 10%정도) * 최초 구매금액)
                 XRP_next_amount = (float(position_XRP['isolatedWallet']) * 1.05 + initamount)
-                print("[i]추가 구매액 재설정($, 현재 포지션 총 구매금액 + 초기금액(약 2배씩 구매)) : "+str(XRP_next_amount))
+                print("[i][i]Reset add amount of position($, amount of current position + inital price(about x 2)) : "+str(XRP_next_amount))
                 # 잔액 등 확인
                 total_balance, avail_balance, initialmargin, pnl, roe = check_balance(account)
-                print('[i]총 자산(거래전) : '+ str(total_balance)+'$, 가용 자산 : '+str(avail_balance)+'$, 마진 금액(수익포함) : '+str(round(initialmargin, 3))+'$, PNL : '+str(pnl)+'$, ROE : '+str(roe)+'%')
+                print('[i]Total Asset(before start) : '+ str(total_balance)+'$, Available Asset : '+str(avail_balance)+'$, Margin Asset(Included Profit) : '+str(round(initialmargin, 3))+'$, PNL : '+str(pnl)+'$, ROE : '+str(roe)+'%')
 
             #포지션이 없는 경우(비트코인)
             if position_BTC['isolatedWallet'] == '0':
                 print("####### BTC(Short) #######")
-                print("현재 포지션이 없습니다. 포지션 오픈 하겠습니다. ")
+                print("No position, open new position. ")
                 # Step3. 최초 구매(포지션 오픈)
                 symbol = "BTCUSDT"
                 current_price = client.futures_symbol_ticker(symbol=symbol)
@@ -151,22 +151,22 @@ def main_transaction():
                 account = client.futures_account()
                 position_XRP, position_BTC = check_position(account)
 
-                msg1 = "[+]포지션 오픈 성공 : "+str(order['orderId'])+"\n포지션 총 구매금액($) : " + str(position_BTC['isolatedWallet']) +'\n포지션 평균 진입 금액 : '+ str(position_BTC['entryPrice'])
+                msg1 = "[+]Success new position open : "+str(order['orderId'])+"\nPosition total amount($) : " + str(position_BTC['isolatedWallet']) +'\nentryprice of position : '+ str(position_BTC['entryPrice'])
                 print(msg1)
 
                 # Step4. 포지션 종료가 설정
                 BTC_tartget_buy_price = int(float(position_BTC['entryPrice']) * BTC_buy_rate)
-                print("[i]포지션 종료가 설정("+str(BTC_buy_rate)+") : "+str(BTC_tartget_buy_price))
+                print("[i]Set close price of position("+str(BTC_buy_rate)+") : "+str(BTC_tartget_buy_price))
                 # step5. 추가 판매가 설정
                 BTC_target_sell_price = int(float(position_BTC['entryPrice']) * BTC_sell_rate)
-                print("[i]추가 판매가 설정("+str(BTC_sell_rate)+") : "+str(BTC_target_sell_price))
+                print("[i]Set add price("+str(BTC_sell_rate)+") : "+str(BTC_target_sell_price))
                 # step6. 추가 판매액 설정(현재 포지션 총 구매액 * 1.1(수수료, 소숫점 제외 등 10%정도) * 최초 구매금액)
                 BTC_next_amount = int((float(position_BTC['isolatedWallet']) * 1.05 + initamount))
-                print("[i]추가 판매액 재설정($, 현재 포지션 총 판매금액 + 초기금액(약 2배씩 구매)) : "+str(BTC_next_amount))
+                print("[i]Reset add amount of position($, amount of current position + inital price(about x 2)) : "+str(BTC_next_amount))
 
                 # 잔액 등 확인
                 total_balance, avail_balance, initialmargin, pnl, roe = check_balance(account)
-                print('[i]총 자산(거래전) : '+ str(total_balance)+'$, 가용 자산 : '+str(avail_balance)+'$, 마진 금액(수익포함) : '+str(round(initialmargin, 3))+'$, PNL : '+str(pnl)+'$, ROE : '+str(roe)+'%')
+                print('[i]Total Asset(before start) : '+ str(total_balance)+'$, Available Asset : '+str(avail_balance)+'$, Margin Asset(Included Profit) : '+str(round(initialmargin, 3))+'$, PNL : '+str(pnl)+'$, ROE : '+str(roe)+'%')
 
             #250초마다 현재 상황 로깅
             price_print_cnt = 0
@@ -177,13 +177,13 @@ def main_transaction():
                 
                 if price_print_cnt == 0:
                     now = datetime.now()
-                    print('['+now.strftime('%Y-%m-%d %H:%M:%S')+']현재 XRP 가격 : ' + str(XRP_current_price['price'])+ ', 현재 포지션 양 : '+ str(position_XRP['positionAmt']) + ', 포지션 종료가 : '+ str(XRP_target_sell_price)+', 추가 구매가 : ' +str(XRP_tartget_buy_price))
-                    print('['+now.strftime('%Y-%m-%d %H:%M:%S')+']현재 BTC 가격 : ' + str(BTC_current_price['price'])+ ', 현재 포지션 양 : '+ str(position_BTC['positionAmt']) + ', 포지션 종료가 : '+ str(BTC_tartget_buy_price)+', 추가 판매가 : ' +str(BTC_target_sell_price))
+                    print('['+now.strftime('%Y-%m-%d %H:%M:%S')+']Current XRP Price : ' + str(XRP_current_price['price'])+ ', Amount of position : '+ str(position_XRP['positionAmt']) + ', Closeprice of position : '+ str(XRP_target_sell_price)+', Target add price : ' +str(XRP_tartget_buy_price))
+                    print('['+now.strftime('%Y-%m-%d %H:%M:%S')+']Current BTC Price : ' + str(BTC_current_price['price'])+ ', Amount of position : '+ str(position_BTC['positionAmt']) + ', Closeprice of position : '+ str(BTC_tartget_buy_price)+', Target add price : ' +str(BTC_target_sell_price))
                     price_print_cnt = price_print_cnt + 1
                 elif price_print_cnt > 50:
                     now = datetime.now()
-                    print('['+now.strftime('%Y-%m-%d %H:%M:%S')+']현재 XRP 가격 : ' + str(XRP_current_price['price'])+ ', 현재 포지션 양 : '+ str(position_XRP['positionAmt']) + ', 포지션 종료가 : '+ str(XRP_target_sell_price)+', 추가 구매가 : ' +str(XRP_tartget_buy_price))
-                    print('['+now.strftime('%Y-%m-%d %H:%M:%S')+']현재 BTC 가격 : ' + str(BTC_current_price['price'])+ ', 현재 포지션 양 : '+ str(position_BTC['positionAmt']) + ', 포지션 종료가 : '+ str(BTC_tartget_buy_price)+', 추가 판매가 : ' +str(BTC_target_sell_price))
+                    print('['+now.strftime('%Y-%m-%d %H:%M:%S')+']Current XRP Price : ' + str(XRP_current_price['price'])+ ', Amount of position : '+ str(position_XRP['positionAmt']) + ', Closeprice of position : '+ str(XRP_target_sell_price)+', Target add price : ' +str(XRP_tartget_buy_price))
+                    print('['+now.strftime('%Y-%m-%d %H:%M:%S')+']Current BTC Price : ' + str(BTC_current_price['price'])+ ', Amount of position : '+ str(position_BTC['positionAmt']) + ', Closeprice of position : '+ str(BTC_tartget_buy_price)+', Target add price : ' +str(BTC_target_sell_price))
                     price_print_cnt = 1
                 else:
                     price_print_cnt = price_print_cnt + 1
@@ -200,31 +200,31 @@ def main_transaction():
                         time.sleep(5)
                         account = client.futures_account()
                         position_XRP, position_BTC = check_position(account)
-                        msg2 = "[+][XRP(Long)]추가 구매 성공 : "+str(order['orderId'])+"\n포지션 총 구매금액($) : " + str(position_XRP['isolatedWallet']) +'\n포지션 평균 진입 금액 : '+ str(position_XRP['entryPrice'])
+                        msg2 = "[+][XRP(Long)]Success Add position : "+str(order['orderId'])+"\nPosition total amount($) : " + str(position_XRP['isolatedWallet']) +'\nentryprice of position: '+ str(position_XRP['entryPrice'])
                         print(msg2)
 
                         #Step7. 포지션 종료가 및 추가 구매가 재설정
                         XRP_target_sell_price = float(position_XRP['entryPrice']) * XRP_sell_rate
-                        print("[i][XRP(Long)]포지션 종료가 재설정("+str(XRP_sell_rate)+") : "+str(XRP_target_sell_price))
+                        print("[i][XRP(Long)]Reset closeprice of position("+str(XRP_sell_rate)+") : "+str(XRP_target_sell_price))
                         XRP_tartget_buy_price = float(position_XRP['entryPrice']) * XRP_buy_rate
-                        print("[i][XRP(Long)]추가 구매가 재설정("+str(XRP_buy_rate)+") : "+str(XRP_tartget_buy_price))
+                        print("[i][XRP(Long)]Reset addprice of position("+str(XRP_buy_rate)+") : "+str(XRP_tartget_buy_price))
                         #[info] 구매 수량을 1.1이 아닌 1로해서 수수료등 무시하는방식으로, 저렇게 하니깐 금액이 커질수록 너무 커짐, 
                         XRP_next_amount = (float(position_XRP['isolatedWallet']) * 1.05 + initamount)
-                        print("[i][XRP(Long)]추가 구매액 재설정($, 현재 포지션 총 구매금액 + 초기금액(약 2배씩 구매)) : "+str(XRP_next_amount))
+                        print("[i][XRP(Long)]Reset add amount of position($, Amount of current position + Initial Price(abount x 2)) : "+str(XRP_next_amount))
                         # 잔액 등 확인
                         total_balance, avail_balance, initialmargin, pnl, roe = check_balance(account)
-                        print('[i]총 자산(거래전) : '+ str(total_balance)+'$, 가용 자산 : '+str(avail_balance)+'$, 마진 금액(수익포함) : '+str(round(initialmargin, 3))+'$, PNL : '+str(pnl)+'$, ROE : '+str(roe)+'%')
+                        print('[i]Total Asset(before start) : '+ str(total_balance)+'$, Available Asset : '+str(avail_balance)+'$, Margin Asset(Included Profit) : '+str(round(initialmargin, 3))+'$, PNL : '+str(pnl)+'$, ROE : '+str(roe)+'%')
                     else:
-                        print("[-] 구매금액이 부족하여 추가 구매 실패.. 가용 자산 : "+str(avail_balance)+"$, 추가 구매액 : "+str(XRP_next_amount))
+                        print("[-] Failed to add position because of no money.. Available Asset : "+str(avail_balance)+"$, add price of position : "+str(XRP_next_amount))
 
                 #Step8.  XRP(LONG) 포지션 종료
                 elif (float(XRP_current_price['price']) > float(XRP_target_sell_price)):
                     symbol = "XRPUSDT"
                     now = datetime.now()
-                    print('['+now.strftime('%Y-%m-%d %H:%M:%S')+']현재 XRP 가격 : ' + str(XRP_current_price['price'])+ ', 현재 포지션 양 : '+ str(position_XRP['positionAmt']) + ', 포지션 종료가 : '+ str(XRP_target_sell_price)+', 추가 구매가 : ' +str(XRP_tartget_buy_price))
+                    print('['+now.strftime('%Y-%m-%d %H:%M:%S')+']Current XRP Price : ' + str(XRP_current_price['price'])+ ', Amount of current position : '+ str(position_XRP['positionAmt']) + ', closeprice of position : '+ str(XRP_target_sell_price)+', addprice of position : ' +str(XRP_tartget_buy_price))
                     order = sell_coin(symbol, position_XRP['positionAmt'])
                     time.sleep(5)
-                    msg3 = "[+][XRP(Long)]포지션 종료 성공 : "+str(order['orderId'])+"\n포지션 총 판매금액($) : " + str(position_XRP['isolatedWallet']) +'\n포지션 예상 수익 : '+ str(round((float(XRP_current_price['price']) - float(position_XRP['entryPrice'])) * float(position_XRP['positionAmt']),2))
+                    msg3 = "[+][XRP(Long)]Success of close position : "+str(order['orderId'])+"\nPosition total amount($) : " + str(position_XRP['isolatedWallet']) +'\nProfit of closed position : '+ str(round((float(XRP_current_price['price']) - float(position_XRP['entryPrice'])) * float(position_XRP['positionAmt']),2))
                     print(msg3)
                     break
                 else:
@@ -242,33 +242,33 @@ def main_transaction():
                         time.sleep(5)
                         account = client.futures_account()
                         position_XRP, position_BTC = check_position(account)
-                        msg2 = "[+][BTC(Short)]추가 판매 성공 : "+str(order['orderId'])+"\n포지션 총 구매금액($) : " + str(position_BTC['isolatedWallet']) +'\n포지션 평균 진입 금액 : '+ str(position_BTC['entryPrice'])
+                        msg2 = "[+][BTC(Short)]Success Add position : "+str(order['orderId'])+"\nPosition total amount($) : " + str(position_BTC['isolatedWallet']) +'\nentryprice of position : '+ str(position_BTC['entryPrice'])
                         print(msg2)
                         #bot.send_message(chat_id = chat_id, text=msg2, disable_notification=False)
 
                         #Step7. 포지션 종료가 및 추가 구매가 재설정
                         BTC_tartget_buy_price = int(float(position_BTC['entryPrice']) * BTC_buy_rate)
-                        print("[i][BTC(Short)]포지션 종료가 설정("+str(BTC_buy_rate)+") : "+str(BTC_tartget_buy_price))
+                        print("[i][BTC(Short)]Reset closeprice of position("+str(BTC_buy_rate)+") : "+str(BTC_tartget_buy_price))
                         BTC_target_sell_price = int(float(position_BTC['entryPrice']) * BTC_sell_rate)
-                        print("[i][BTC(Short)]추가 판매가 설정("+str(BTC_sell_rate)+") : "+str(BTC_target_sell_price))
+                        print("[i][BTC(Short)]Reset addprice of position("+str(BTC_sell_rate)+") : "+str(BTC_target_sell_price))
                         BTC_next_amount = int((float(position_BTC['isolatedWallet']) * 1.05 + initamount))
-                        print("[i][BTC(Short)]추가 판매액 재설정($, 현재 포지션 총 구매금액 + 초기금액(약 2배씩 구매)) : "+str(BTC_next_amount))
+                        print("[i][BTC(Short)]Reset add amount of position($, Amount of current position + Initial Price(abount x 2)) : "+str(BTC_next_amount))
 
                         # 잔액 등 확인
                         total_balance, avail_balance, initialmargin, pnl, roe = check_balance(account)
-                        print('[i]총 자산(거래전) : '+ str(total_balance)+'$, 가용 자산 : '+str(avail_balance)+'$, 마진 금액(수익포함) : '+str(round(initialmargin, 3))+'$, PNL : '+str(pnl)+'$, ROE : '+str(roe)+'%')
+                        print('[i]Total Asset(before start) : '+ str(total_balance)+'$, Available Asset : '+str(avail_balance)+'$, Margin Asset(Included Profit) : '+str(round(initialmargin, 3))+'$, PNL : '+str(pnl)+'$, ROE : '+str(roe)+'%')
                         #os._exit(1)
                     else:
-                        print("[-] 구매금액이 부족하여 추가 판매 실패.. 가용 자산 : "+str(avail_balance)+"$, 추가 판매액 : "+str(BTC_next_amount))
+                        print("[-] Failed to add position because of no money.. Available Asset : "+str(avail_balance)+"$, add price of position : "+str(BTC_next_amount))
 
                 #Step8.  BTC(Short) 포지션 종료
                 elif (float(BTC_current_price['price']) < float(BTC_tartget_buy_price)):
                     symbol = "BTCUSDT"
                     now = datetime.now()
-                    print('['+now.strftime('%Y-%m-%d %H:%M:%S')+']현재 BTC 가격 : ' + str(BTC_current_price['price'])+ ', 현재 포지션 양 : '+ str(position_BTC['positionAmt']) + ', 포지션 종료가 : '+ str(BTC_tartget_buy_price)+', 추가 판매가 : ' +str(BTC_target_sell_price))
+                    print('['+now.strftime('%Y-%m-%d %H:%M:%S')+']Current BTC Price : ' + str(BTC_current_price['price'])+ ', Amount of current position : '+ str(position_BTC['positionAmt']) + ', closeprice of position : '+ str(BTC_tartget_buy_price)+', addprice of position : ' +str(BTC_target_sell_price))
                     order = buy_coin(symbol, abs(float(position_BTC['positionAmt'])))
                     time.sleep(5)
-                    msg3 = "[+][BTC(Short)]포지션 종료 성공 : "+str(order['orderId'])+"\n포지션 총 판매금액($) : " + str(position_BTC['isolatedWallet']) +'\n포지션 예상 수익 : '+ str(round((float(BTC_current_price['price']) - float(position_BTC['entryPrice'])) * float(position_BTC['positionAmt']),2))
+                    msg3 = "[+][BTC(Short)]Success of close position : "+str(order['orderId'])+"\nPosition total amount($) : " + str(position_BTC['isolatedWallet']) +'\nprofit of closed position : '+ str(round((float(BTC_current_price['price']) - float(position_BTC['entryPrice'])) * float(position_BTC['positionAmt']),2))
                     print(msg3)
                     #os._exit(1)
                     break
